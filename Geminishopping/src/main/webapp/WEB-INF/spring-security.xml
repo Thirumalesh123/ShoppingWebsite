@@ -1,0 +1,37 @@
+<beans:beans
+	xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd">
+	<context:component-scan
+		base-package="com.gemini.shopping.GeminishoppingBackend" />
+	<beans:bean id="passwordEncoder"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+	<http>
+		<intercept-url pattern="/admin/**" access="hasAuthority('ADMIN')" />
+		<intercept-url pattern="/**" access="permitAll" />
+		<access-denied-handler error-page="/access-restricted" />
+		<form-login login-page="/login" />
+		<logout />
+	</http>
+
+	<authentication-manager>
+		<authentication-provider>
+			<password-encoder ref="passwordEncoder"></password-encoder>
+			<!-- <user-service> <user name="jimi" password="jimispassword" authorities="ROLE_USER, 
+				ROLE_ADMIN" /> <user name="bob" password="bobspassword" authorities="ROLE_USER" 
+				/> </user-service> -->
+			<jdbc-user-service data-source-ref="dataSource"
+				authorities-by-username-query="select email,role from user_detail where email=?"
+				users-by-username-query="select email,password,enabled from user_detail where email=?" />
+		</authentication-provider>
+	</authentication-manager>
+
+
+</beans:beans>
